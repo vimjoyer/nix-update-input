@@ -21,8 +21,14 @@
           input=$(                                           \
             nix flake metadata --json                        \
             | ${pkgs.jq}/bin/jq -r ".locks.nodes.root.inputs | keys[]" \
+            | printf "$(</dev/stdin) \nall" \
             | ${pkgs.fzf}/bin/fzf)
-          nix flake lock --update-input $input
+          if [[ $input == "all" ]];
+          then
+            nix flake update
+          else
+            nix flake lock --update-input $input
+          fi
         '';
       });
     };
